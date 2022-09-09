@@ -41,6 +41,8 @@ class Brand(models.Model):
     def __str__(self):
         return self.name
 
+
+
 class Users(models.Model):
     first_name = models.CharField(max_length=200,verbose_name='Имя')
     last_name = models.CharField(max_length=200,verbose_name='Фамилия')

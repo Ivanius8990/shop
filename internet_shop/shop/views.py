@@ -1,6 +1,9 @@
+from urllib import request
+
 from django.db.models import Count
 from django.http import HttpResponse
 from django.shortcuts import render
+from django.views.generic import ListView
 
 from internet_shop import settings
 from internet_shop.settings import MEDIA_ROOT, MEDIA_URL
@@ -22,6 +25,18 @@ def index(request):
         'title': 'главная страница'
     }
     return render(request, 'shop/index.html', context=context)
+
+
+# class Store(ListView):
+#     model = ShopProducts
+#     template_name = 'shop/store.html'
+#     context_object_name = 'posts'
+#     def get_context_data(self, *, object_list=None, **kwargs):
+#         context=super().get_context_data(**kwargs)
+#         context['menu']=menu
+#         return context
+
+
 
 
 def store(request):
@@ -60,6 +75,29 @@ def store(request):
             'checked_brands': checked_brands
         }
         return render(request, 'shop/store.html', context=context, )
+
+
+def checkbox_filters(request):
+    """Проверка доступности логина"""
+    name = request.GET.get('scales2', None)
+    print(name)
+    # print(Books.objects.filter(name=name).exists())
+    # response = {
+    #     'is_taken': Books.objects.filter(name=name).exists()
+    # }
+    # return JsonResponse(response)
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 def product(request, id):

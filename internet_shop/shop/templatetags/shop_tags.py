@@ -23,3 +23,6 @@ def brand_product_count():
     return Brand.objects.annotate(Count('shopproducts'))
 
 
+@register.simple_tag
+def raiting_count(rait):
+    return range(rait)
