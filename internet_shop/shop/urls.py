@@ -23,9 +23,11 @@ from shop.views import *
 
 urlpatterns = [
     path('', index,name='index'),
-    path('store', store,name='store'),
-    # path('store', Store.as_view(),name='store'),
+    # path('store', store, name='store'),
+    path('store', Store.as_view(),name='store'),
     path('product/<int:id>/', product, name='product'),
     path('checkout', checkout, name='checkout'),
+    path('checkbox_filters', checkbox_filters, name='checkbox_filters'),
+    path('basket', basket, name='basket'),
 
 ]
