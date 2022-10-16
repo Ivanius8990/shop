@@ -2,36 +2,9 @@
 {% block content %}
 {% load static %}
 {% load shop_tags %}
-<script>-->
- $(document).ready(function () {
-          $('.input-checkbox input').change(function () {
-          var categories = [];
-          $('.input-checkbox#categories_filter input:checkbox:checked').each(function()
-             {
-               categories.push($(this).val());
-             });
-          var brands = [];
-          $('.input-checkbox#brands_filter input:checkbox:checked').each(function()
-             {
-               brands.push($(this).val());
-             });
-              $.ajax({
-                  data: ({
-                  categories: categories.join(','),
-                  brands: brands.join(',')
-                  }),
-                  url: "{% url 'checkbox_filters' %}",
-                  success: function () {
-                  },
-              });
-              return false;
-          });
-      })
 
-
-</script>
 <!-- SECTION -->
-<div class="section">
+<div class="section" id="app">
     <!-- container -->
     <div class="container">
         <!-- row -->
@@ -39,28 +12,26 @@
             <!-- ASIDE -->
             <div id="aside" class="col-md-3">
                 <!-- aside Widget -->
-                <form action="" id="form_buying" method="POST">
-                    <input type="hidden" id="Url" data-url="{% url 'basket' %}" />
-                    {% csrf_token %}
+<!--                <form action="" id="form_buying" method="POST">-->
+<!--                    <input type="hidden" id="Url" data-url="{% url 'basket' %}" />-->
+<!--                    {% csrf_token %}-->
                     <div class="aside">
                         <h3 class="aside-title">Категории</h3>
                         <div class="checkbox-filter">
-                            {% get_categories as categories %}
-                            {% for cat in categories %}
-                            <div class="input-checkbox" id="categories_filter">
-                                <input type="checkbox" name="{{cat.pk}}" id="categories{{cat.pk}}" value="{{cat.pk}}">
-                                <label for="categories{{cat.pk}}">
+
+                            <div class="input-checkbox" id="categories_filter" v-for="cat in cats">
+                                <input type="checkbox" :id="cat.name" :value="cat.id" v-model="checkedCats" >
+                                <label :for="cat.name">
                                     <span></span>
-                                    {{cat}}
+                                    {*cat.name*}
                                     <small>
-                                        {% cat_product_count as cat_product_count%}
-                                        {% for c in cat_product_count %}
-                                        {% if c == cat %} ( {{c.shopproducts__count}} ) {% endif %}
-                                        {% endfor %}
+<!--                                        {% cat_product_count as cat_product_count%}-->
+<!--                                        {% for c in cat_product_count %}-->
+<!--                                        {% if c == cat %} ( {{c.shopproducts__count}} ) {% endif %}-->
+<!--                                        {% endfor %}-->
                                     </small>
                                 </label>
                             </div>
-                            {% endfor %}
                         </div>
                     </div>
                     <!-- /aside Widget -->
@@ -87,27 +58,26 @@
                     <div class="aside">
                         <h3 class="aside-title">Производитель</h3>
                         <div class="checkbox-filter">
-                            {% get_brand as brands %}
-                            {%for brand in brands %}
-                            <div class="input-checkbox" id="brands_filter">
-                                <input type="checkbox" name="{{brand.pk}}" id="brand{{brand.pk}}" value="{{brand.pk}}">
-                                <label for="brand{{brand.pk}}">
+
+                            <div class="input-checkbox" v-for="brand in brands">
+                                <input type="checkbox" :id="brand.name" :value="brand.id" v-model="checkedBrands">
+                                <label :for="brand.name">
                                     <span></span>
-                                    {{brand.name}}
-                                    <small>
-                                        {% brand_product_count as brand_count %}
-                                        {% for b in brand_count %}
-                                        {% if b == brand %} ( {{b.shopproducts__count}} ) {% endif %}
-                                        {% endfor %}
-                                    </small>
+                                    {*brand.name*}
+<!--                                    <small>-->
+<!--                                        {% brand_product_count as brand_count %}-->
+<!--                                        {% for b in brand_count %}-->
+<!--                                        {% if b == brand %} ( {{b.shopproducts__count}} ) {% endif %}-->
+<!--                                        {% endfor %}-->
+<!--                                    </small>-->
                                 </label>
                             </div>
-                            {%endfor%}
+
                         </div>
                     </div>
                     <br>
-                    <button type="submit" class="quick-view"><span class="tooltipp">Показать</span></button>
-                </form>
+<!--                    <button type="submit" class="quick-view"><span class="tooltipp">Показать</span></button>-->
+<!--                </form>-->
                 <br>
                 <!-- /aside Widget -->
 
@@ -188,37 +158,29 @@
                 <!-- store products -->
                 <div class="row">
                     <!-- product -->
-                    {%for p in posts%}
-                    <div class="col-md-4 col-xs-6">
+                    <div class="col-md-4 col-xs-6" v-for="p in allproducts">
                         <div class="product">
                             <div class="product-img">
-                                <a href="{% url 'product' p.pk %}"><img src="{{p.photo.url}}" height="250"
-                                                                        alt="{{p.title}}"></a>
+                                <a :href="+p.id"><img :src="p.photo" height="250"
+                                                                        :alt="p.title"></a>
                                 <div class="product-label">
-                                    {% if p.sale %}
-                                    <span class="sale">-{{p.sale}}%</span>
-                                    {% endif %}
-                                    {% if p.new %}
-                                    <span class="new">NEW</span>
-                                    {% endif %}
+                                    <span v-if="p.sale" class="sale">-{*p.sale*}</span>
+                                    <span v-if="p.new" class="new">NEW</span>
 
                                 </div>
                             </div>
                             <div class="product-body">
-                                <div id="id-product" class="hidden">{{p.pk}}</div>
-                                <p class="product-category">{{p.cat.name}}</p>
-                                <h3 class="product-name">{{p.title|truncatewords:4}}</h3>
-                                <h4 class="product-price">${{p.prise}}</h4>
-                                    <del class="product-old-price">$990.00</del>
+                                <div id="id-product" class="hidden">{*p.id*}</div>
+                                <p class="product-category">{*p.cat.name*}</p>
+                                <h3 class="product-name">{*p.title|truncatewords:4*}</h3>
+                                <h4 class="product-price">&#x20bd {*p.prise*}</h4>
+                                    <del class="product-old-price">&#8381 990.00</del>
 
 
                                 <div class="product-rating">
-                                    {% raiting_count p.raiting as rait %}
-                                    {% for i in rait %}
-                                    <i class="fa fa-star"></i>
-                                    {%endfor%}
-
+                                    <i v-for="i in p.raiting" class="fa fa-star"></i>
                                 </div>
+
                                 <div class="product-btns">
                                     <button class="add-to-wishlist"><i class="fa fa-heart-o"></i><span class="tooltipp">add to wishlist</span>
                                     </button>
@@ -234,7 +196,7 @@
                         </div>
                     </div>
                     <!-- /product -->
-                    {%endfor%}
+
 
 
                 </div>

@@ -1,14 +1,12 @@
-from urllib import request
-
-from django.db.models import Count
-from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.views.generic import ListView
 from django.http import JsonResponse
-from internet_shop import settings
-from internet_shop.settings import MEDIA_ROOT, MEDIA_URL
+from rest_framework import viewsets
+from rest_framework.decorators import action
+from django_filters.rest_framework import DjangoFilterBackend
 from shop.forms import UsersForm
 from shop.models import *
+from shop.serializers import ShopProductSerializer
 
 menu = [{"title": "Домашняя", 'url_name': 'index'},
         {"title": "Горячие предложения", 'url_name': 'index'},
@@ -38,64 +36,22 @@ class Store(ListView):
         return context
 
 
-# def store(request):
-#     if request.method == 'GET':
-#         posts = ShopProducts.objects.all()
-#         context = {
-#             'menu': menu,
-#             'title': 'главная страница',
-#             'posts': posts,
-#         }
-#         return render(request, 'shop/store.html', context=context, )
-#         posts = ShopProducts.objects.all()
-#         context = {
-#             'menu': menu,
-#             'title': 'главная страница',
-#             'posts': posts,
-#         }
-#         return render(request, 'shop/store.html', context=context, )
-#     else:
-#         price_max = request.POST.get('price-max')
-#         price_min = request.POST.get('price-min')
-#         print(price_min, price_max)
-#
-#         checked_cats = request.POST.getlist('cat_inputs')
-#         checked_cats = list(map(int, checked_cats))
-#
-#         checked_brands = request.POST.getlist('brand_inputs')
-#         checked_brands = list(map(int, checked_brands))
-#
-#         if len(checked_cats) != 0 and len(checked_brands) == 0:
-#             posts = ShopProducts.objects.filter(cat__in=checked_cats,price__gte=price_min,prise__lte=prise_max)
-#         elif len(checked_cats) == 0 and len(checked_brands) != 0:
-#             posts = ShopProducts.objects.filter(brand__in=checked_brands,prise__gte=prise_min,prise__lte=prise_max)
-#         elif len(checked_cats) != 0 and len(checked_brands) != 0:
-#             posts = ShopProducts.objects.filter(brand__in=checked_brands, cat__in=checked_cats,prise__gte=prise_min,prise__lte=prise_max)
-#         else:
-#             posts = ShopProducts.objects.filter(prise__gte=prise_min,prise__lte=prise_max)
-#         context = {
-#             'menu': menu,
-#             'title': 'главная страница',
-#             'posts': posts,
-#             'checked_cats': checked_cats,
-#             'checked_brands': checked_brands
-#         }
-#         return render(request, 'shop/store.html', context=context, )
-
-
-def checkbox_filters(request):
-    """Проверка доступности логина"""
-    categories = request.GET.get('categories', None)
-    brands = request.GET.get('brands', None)
-    print(categories)
-    print(brands)
-    # print(Books.objects.filter(name=name).exists())
-    response = {
-        'categories': categories,
-        'brands': brands
+class StoreViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset =ShopProducts.objects.all()
+    serializer_class = ShopProductSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = {
+        'cat': ['in','exact'],
+        'brand': ['in', 'exact']
     }
-    print(response)
-    return JsonResponse(response)
+    @action(methods=['get'], detail=False)
+    def category(self, request):
+        data = list(Category.objects.values())
+        return JsonResponse(data, safe=False)
+    @action(methods=['get'], detail=False)
+    def brand(self, request):
+        data = list(Brand.objects.values())
+        return JsonResponse(data, safe=False)
 
 
 def product(request, id):
@@ -126,16 +82,15 @@ def basket(request):
         request.session.cycle_key()
     return_dict = {}
     data = request.POST
-    numb = data.get('numb')
-    prod_id = data.get('id')
+    print(data)
+    del_item=data.get('del_item')
+    if del_item:
+        Basket.objects.filter(session_key=session_key, id=del_item).delete()
+    else:
+        numb = data.get('numb')
+        prod_id = data.get('id')
+        title = ShopProducts.objects.values('title').get(pk=prod_id)['title']
+        prise_item = ShopProducts.objects.values('prise').get(pk=prod_id)['prise']
+        Basket.objects.update_or_create(session_key=session_key,prod_id=prod_id,numb=numb,title=title,prise_item=prise_item)
+        return JsonResponse(return_dict)
 
-    Basket.objects.create(session_key=session_key,prod_id=prod_id,numb=numb)
-    total_prod = Basket.objects.filter(session_key=session_key).count()
-    return_dict['total_prod'] = total_prod
-    print(prod_id)
-    print(numb)
-    print(return_dict)
-    # ff=Basket.objects.get(pk=1)
-    # aa=ff.products.prise
-    # print(aa)
-    return JsonResponse(return_dict)

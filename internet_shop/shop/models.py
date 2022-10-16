@@ -2,10 +2,10 @@ from django.db import models
 
 
 class ShopProducts(models.Model):
-    title = models.CharField(max_length=200, verbose_name='название',blank=False)
-    content = models.TextField(verbose_name='описание',blank=False)
-    photo = models.ImageField(upload_to="img", verbose_name='фото',blank=True)
-    prise = models.DecimalField(max_digits=10, decimal_places=2 ,default=0)
+    title = models.CharField(max_length=200, verbose_name='название', blank=False)
+    content = models.TextField(verbose_name='описание', blank=False)
+    photo = models.ImageField(upload_to="img", verbose_name='фото', blank=True)
+    prise = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     raiting = models.IntegerField(default=5)
     time_create = models.DateTimeField(auto_now_add=True, verbose_name='время создания')
     time_update = models.DateTimeField(auto_now=True)
@@ -57,26 +57,23 @@ class Basket(models.Model):
     session_key = models.CharField(max_length=255, verbose_name='session_key')
     prod_id = models.IntegerField(verbose_name='id товара')
     numb = models.IntegerField(default=1)
-#     products = models.ForeignKey('ShopProducts', on_delete=models.PROTECT)
-#     title = models.CharField(max_length=200, verbose_name='название', blank=False)
-#     prise_item = models.DecimalField(max_digits=10, decimal_places=2 ,default=0)
-#     total_prise = models.FloatField(blank=False,default=None)
-#     time_create = models.DateTimeField(auto_now_add=True, verbose_name='время создания')
-#     cat = models.ForeignKey('Category', on_delete=models.PROTECT, blank=False)
-#     brand = models.ForeignKey('Brand', on_delete=models.PROTECT, blank=False)
+    # products = models.ForeignKey('ShopProducts', on_delete=models.PROTECT)
+    title = models.CharField(max_length=200, verbose_name='название', blank=True)
+    prise_item = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    total_prise = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    time_create = models.DateTimeField(auto_now_add=True, verbose_name='время создания')
+    # cat = models.ForeignKey('Category', on_delete=models.PROTECT, blank=True)
+    # brand = models.ForeignKey('Brand', on_delete=models.PROTECT, blank=True)
 
+    def save(self, *args, **kwargs):
+        self.total_prise = self.prise_item * int(self.numb)
+        # self.cat = self.cat.name
+        # self.brand = self.brand.name
 
+        super(Basket, self).save(*args, **kwargs)
 
-    # def __str__(self):
-    #     return self.title
-
-    # def save(self, *args, **kwargs):
-    #     prise = self.products.prise
-    #     print(prise)
-    #     self.prise = prise
-        # self.total_prise = float(self.prise) * float(self.numb)
-
-        # super(Basket, self).save(*args, **kwargs)
+    def __str__(self):
+        return self.title
 
     class Meta:
         verbose_name = 'Корзина'

@@ -7,6 +7,7 @@ class ShopAdmin(admin.ModelAdmin):
     list_display_links = ('id', 'title')
     search_fields = ('title', 'content')
 
+
 admin.site.register(ShopProducts, ShopAdmin)
 
 
@@ -14,6 +15,7 @@ class CategoryAdmin(admin.ModelAdmin):
     list_display = ('id', 'name')
     list_display_links = ('id', 'name')
     search_fields = ('name',)
+
 
 admin.site.register(Category, CategoryAdmin)
 
@@ -23,11 +25,14 @@ class BrandAdmin(admin.ModelAdmin):
     list_display_links = ('id', 'name')
     search_fields = ('name',)
 
-admin.site.register(Brand, CategoryAdmin)
 
-# class BasketAdmin(admin.ModelAdmin):
-#     list_display = ('id', 'title', 'cat','brand')
-#     list_display_links = ('id', 'title')
-#     search_fields = ('title', 'content')
-#
-# admin.site.register(Basket, BasketAdmin)
+admin.site.register(Brand, BrandAdmin)
+
+
+class BasketAdmin(admin.ModelAdmin):
+    list_display = ('id', 'title',)
+    list_display_links = ('id', 'title')
+    search_fields = ('title', 'content')
+
+
+admin.site.register(Basket, BasketAdmin)
